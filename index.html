@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#14284B">
+  <meta name="description" content="TIVO — منصة سياحية ذكية جزائرية: رفيق سفر بالذكاء الاصطناعي، مجموعات موثقة، وخريطة ذكية.">
+  <title>TIVO — السفر، برؤية جديدة | Travel, Reimagined</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="logotivo.jpeg">
+  <link rel="apple-touch-icon" href="logotivo.jpeg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind + Lucide -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --primary: #E85A3C;
+      --secondary: #14284B;
+      --gold: #F59E0B;
+      --bg: #FAFAFA;
+      --card-border: rgba(20, 40, 75, 0.06);
+      --glass-bg: rgba(255, 255, 255, 0.78);
+    }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'IBM Plex Sans Arabic', 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--secondary);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .font-en { font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif; }
+
+    /* Glass */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(20, 40, 75, 0.06);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(20, 40, 75, 0.05);
+    }
+
+    /* Reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .8s cubic-bezier(.2,.65,.3,1), transform .8s cubic-bezier(.2,.65,.3,1);
+      will-change: opacity, transform;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Phone mockup */
+    .phone-mockup {
+      transform: perspective(1200px) rotateY(-4deg) rotateX(1deg);
+      transition: transform .6s ease;
+    }
+    @media (hover: hover) {
+      .phone-mockup:hover { transform: perspective(1200px) rotateY(0deg) rotateX(0deg); }
+    }
+    @media (max-width: 640px) {
+      .phone-mockup { transform: none; }
+    }
+
+    .logo-gradient { background: linear-gradient(135deg, #E85A3C 0%, #F59E0B 100%); }
+
+    .video-glow {
+      box-shadow: 0 0 0 1px rgba(232,90,60,.15),
+                  0 20px 60px -12px rgba(232,90,60,.25),
+                  0 0 80px -20px rgba(245,158,11,.15);
+      transition: box-shadow .5s ease;
+    }
+    @media (hover: hover) {
+      .video-glow:hover {
+        box-shadow: 0 0 0 1px rgba(232,90,60,.3),
+                    0 30px 80px -12px rgba(232,90,60,.35),
+                    0 0 100px -20px rgba(245,158,11,.25);
+      }
+    }
+
+    .star-gold { color: var(--gold); fill: var(--gold); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(20,40,75,.15); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(232,90,60,.35); }
+
+    ::selection { background: rgba(232,90,60,.2); color: var(--secondary); }
+
+    .nav-scrolled { box-shadow: 0 4px 30px rgba(20,40,75,.07); }
+
+    #download-toast { transition: opacity .3s ease, transform .3s ease; }
+    #download-toast.hidden-toast { opacity: 0; pointer-events: none; transform: translateY(8px); }
+
+    .nav-link.active { color: var(--primary); }
+    .nav-link.active::after {
+      content: ''; position: absolute; bottom: -4px; right: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+      border-radius: 2px;
+    }
+
+    /* Mobile menu slide */
+    #mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height .35s ease, opacity .25s ease;
+    }
+    #mobile-menu.open {
+      max-height: 460px;
+      opacity: 1;
+    }
+
+    /* Touch targets */
+    @media (max-width: 1023px) {
+      .mobile-nav-link { min-height: 48px; display: flex; align-items: center; }
+    }
+
+    /* Hide sticky mobile CTA */
+    #mobile-cta {
+      transform: translateY(0);
+      transition: transform .35s ease, opacity .25s ease;
+    }
+    #mobile-cta.hidden-cta {
+      transform: translateY(120%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @supports (padding: env(safe-area-inset-bottom)) {
+      #mobile-cta { padding-bottom: calc(.75rem + env(safe-area-inset-bottom)); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .phone-mockup { transform: none; }
+    }
+
+    iframe { max-width: 100%; }
+    input, textarea, select { font-size: 16px; }
+
+    /* Logo image fallback helper */
+    .logo-img { object-fit: cover; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- ===== DEVELOPER CONFIG ===== -->
+  <script>
+    const CONFIG = {
+      apkDownloadUrl: "./tivo.apk",
+      apkFileName: "tivo.apk",
+      youtubeVideoId: "lOnKVVjf0uw",
+      appTutorialVideoId: "",
+      appTutorialTitle: "شرح التطبيق: التسجيل، الاستخدام، وأكثر",
+    };
+    window.TIVO_CONFIG = CONFIG;
+  </script>
+
+  <!-- ========== NAVBAR ========== -->
+  <header id="navbar" class="fixed top-0 right-0 left-0 z-50 glass transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 md:h-20">
+
+        <a href="#top" class="flex items-center gap-2.5 sm:gap-3 group" aria-label="TIVO الصفحة الرئيسية">
+          <!-- Logo image with SVG fallback -->
+          <img src="logotivo.jpeg"
+               alt="TIVO Logo"
+               class="logo-img w-10 h-10 md:w-12 md:h-12 rounded-full shadow-md group-hover:scale-105 transition-transform duration-300 border border-[#14284B]/10"
+               width="48" height="48"
+               loading="eager"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+          <span class="hidden relative items-center justify-center w-9 h-9 md:w-11 md:h-11 rounded-full logo-gradient shadow-md">
+            <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 16.5C6 13 9 10 12 10C15 10 17 12 17 14.5C17 17 15 19 12 19C9.5 19 7.5 17.8 6 16.5Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="8" r="1.5" fill="white"/>
+              <path d="M9 8C11 5 15 5 17 7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+
+          <div class="flex flex-col leading-tight">
+            <span class="font-en font-extrabold text-lg md:text-xl tracking-tight" style="color: var(--secondary);">TIVO</span>
+            <span class="font-en text-[9px] md:text-[10px] font-medium tracking-wider uppercase" style="color: var(--primary);">Travel, Reimagined</span>
+          </div>
+        </a>
+
+        <nav class="hidden lg:flex items-center gap-7 text-sm font-medium" aria-label="التنقل الرئيسي">
+          <a href="#about" class="nav-link relative transition-colors duration-200 hover:text-[#E85A3C]">عن المشروع</a>
+          <a href="#features" class="nav-link relative transition-colors duration-200 hover:text-[#E85A3C]">المميزات</a>
+          <a href="#video" class="nav-link relative transition-colors duration-200 hover:text-[#E85A3C]">فيديو العرض</a>
+          <a href="#app-tutorial" class="nav-link relative transition-colors duration-200 hover:text-[#E85A3C]">شرح التطبيق</a>
+          <a href="#roadmap" class="nav-link relative transition-colors duration-200 hover:text-[#E85A3C]">نموذج العمل</a>
+        </nav>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <a href="#download"
+             class="hidden sm:inline-flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-white text-sm font-bold shadow-lg shadow-[#E85A3C]/25 hover:shadow-[#E85A3C]/40 hover:brightness-105 transition-all duration-300 active:scale-[0.98]"
+             style="background: var(--primary);"
+             onclick="handleApkDownload(event)">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span class="hidden md:inline">تحميل APK</span>
+            <span class="md:hidden">APK</span>
+          </a>
+
+          <button id="mobile-menu-btn" class="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-xl border border-[#14284B]/10 bg-white/70 hover:bg-white active:scale-95 transition-all" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mobile-menu">
+            <i data-lucide="menu" class="w-5 h-5" style="color: var(--secondary);"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="lg:hidden border-t border-[#14284B]/5 bg-white/95 backdrop-blur-lg">
+      <nav class="flex flex-col p-3 gap-1 text-sm font-medium" aria-label="قائمة الجوال">
+        <a href="#about" class="px-4 rounded-xl hover:bg-[#FAFAFA] transition-colors mobile-nav-link">عن المشروع</a>
+        <a href="#features" class="px-4 rounded-xl hover:bg-[#FAFAFA] transition-colors mobile-nav-link">المميزات</a>
+        <a href="#video" class="px-4 rounded-xl hover:bg-[#FAFAFA] transition-colors mobile-nav-link">فيديو العرض</a>
+        <a href="#app-tutorial" class="px-4 rounded-xl hover:bg-[#FAFAFA] transition-colors mobile-nav-link">شرح التطبيق</a>
+        <a href="#roadmap" class="px-4 rounded-xl hover:bg-[#FAFAFA] transition-colors mobile-nav-link">نموذج العمل</a>
+        <a href="#download"
+           class="mt-2 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-white text-sm font-bold shadow-lg"
+           style="background: var(--primary);"
+           onclick="handleApkDownload(event)">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          تحميل التطبيق التجريبي (APK)
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main id="top" class="pt-16 md:pt-20">
+
+    <!-- HERO -->
+    <section id="about" class="relative overflow-hidden">
+      <div class="absolute inset-0 -z-10">
+        <div class="absolute top-20 right-0 w-64 h-64 md:w-96 md:h-96 rounded-full opacity-[0.07]" style="background: var(--primary); filter: blur(80px);"></div>
+        <div class="absolute bottom-0 left-0 w-56 h-56 md:w-80 md:h-80 rounded-full opacity-[0.06]" style="background: var(--gold); filter: blur(90px);"></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20 lg:py-28">
+        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+          <div class="reveal order-2 lg:order-1 text-center lg:text-right">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-xs sm:text-sm font-medium mb-5 sm:mb-6"
+                 style="border: 1px solid rgba(232,90,60,0.18); background: rgba(255,255,255,0.85);">
+              <span class="text-sm sm:text-base">🇩🇿</span>
+              <span style="color: var(--secondary);">منظومة رقمية لترقية السياحة الوطنية في الجزائر</span>
+            </div>
+
+            <h1 class="text-[1.75rem] leading-[1.3] sm:text-4xl md:text-5xl lg:text-[3.25rem] font-bold sm:leading-[1.25] tracking-tight" style="color: var(--secondary);">
+              اكتشف الجزائر
+              <span class="relative inline-block">
+                <span class="relative z-10" style="color: var(--primary);">برؤية جديدة</span>
+                <span class="absolute bottom-1 right-0 left-0 h-2.5 sm:h-3 -z-0 opacity-20 rounded" style="background: var(--gold);"></span>
+              </span>
+              <br class="hidden sm:block">
+              <span class="block mt-1 sm:mt-2">حيث يلتقي الإلهام بالذكاء الاصطناعي</span>
+            </h1>
+
+            <p class="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg leading-relaxed text-[#14284B]/80 max-w-xl mx-auto lg:mx-0">
+              TIVO منصة سياحية ذكية متكاملة تحل مشكلة تشتّت التخطيط، نقص المعلومات الموثوقة، ومخاوف الأمان — عبر رفيق سفر بالذكاء الاصطناعي ومجموعات سفر موثّقة وخريطة ذكية.
+            </p>
+
+            <div class="mt-7 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <button onclick="handleApkDownload(event)"
+                      class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl text-white text-sm sm:text-base font-bold shadow-xl shadow-[#E85A3C]/30 hover:shadow-[#E85A3C]/50 hover:brightness-105 active:scale-[0.98] transition-all duration-300"
+                      style="background: var(--primary); min-height: 48px;">
+                <i data-lucide="download" class="w-5 h-5"></i>
+                تحميل التطبيق التجريبي (APK)
+              </button>
+
+              <a href="#video"
+                 class="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold border-2 hover:bg-[#14284B]/5 active:scale-[0.98] transition-all duration-300"
+                 style="border-color: var(--secondary); color: var(--secondary); min-height: 48px;">
+                <i data-lucide="play-circle" class="w-5 h-5"></i>
+                شاهد فيديو العرض
+              </a>
+            </div>
+
+            <div class="mt-7 sm:mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] sm:text-xs text-[#14284B]/60">
+              <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color: var(--primary);"></i> مجموعات موثقة</span>
+              <span class="inline-flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color: var(--gold);"></i> رفيق TIVO AI</span>
+              <span class="inline-flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color: var(--primary);"></i> خريطة ذكية</span>
+            </div>
+          </div>
+
+          <div class="reveal order-1 lg:order-2 flex justify-center lg:justify-end">
+            <div class="phone-mockup relative w-[240px] xs:w-[260px] sm:w-[300px] md:w-[320px]">
+              <div class="relative rounded-[2.3rem] bg-[#14284B] p-2.5 shadow-2xl shadow-[#14284B]/30 border border-white/10">
+                <div class="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-4 bg-[#0d1a30] rounded-full z-10 flex items-center justify-center">
+                  <div class="w-10 h-1 rounded-full bg-white/20"></div>
+                </div>
+                <div class="relative rounded-[1.9rem] overflow-hidden bg-[#FAFAFA] pt-7 pb-4 px-3">
+                  <div class="flex justify-between items-center text-[9px] font-medium text-[#14284B]/50 mb-2 px-1">
+                    <span>9:41</span>
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="signal" class="w-2.5 h-2.5"></i>
+                      <i data-lucide="wifi" class="w-2.5 h-2.5"></i>
+                      <i data-lucide="battery-full" class="w-3 h-3"></i>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-1.5">
+                      <img src="logotivo.jpeg" alt="" class="w-6 h-6 rounded-full object-cover"
+                           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                      <span class="hidden w-6 h-6 rounded-full logo-gradient items-center justify-center">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none"><path d="M6 16.5C6 13 9 10 12 10C15 10 17 12 17 14.5C17 17 15 19 12 19C9.5 19 7.5 17.8 6 16.5Z" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+                      </span>
+                      <span class="font-en font-bold text-[11px]" style="color: var(--secondary);">TIVO</span>
+                    </div>
+                    <i data-lucide="bell" class="w-3.5 h-3.5 text-[#14284B]/40"></i>
+                  </div>
+
+                  <div class="rounded-2xl p-3 mb-2.5" style="background: var(--secondary);">
+                    <div class="flex items-center gap-1.5 mb-1.5">
+                      <i data-lucide="sparkles" class="w-3 h-3" style="color: var(--gold);"></i>
+                      <span class="font-en text-[9px] font-semibold" style="color: var(--gold);">رفيق TIVO</span>
+                    </div>
+                    <p class="text-[10px] leading-relaxed text-white/90">
+                      مرحباً! بناءً على ميزانيتك، أقترح زيارة <strong>تيبازة</strong> ثم الاسترخاء في <strong>شنوة</strong> 🏖️
+                    </p>
+                    <div class="mt-2 flex gap-1.5">
+                      <span class="text-[8px] px-2 py-1 rounded-full bg-white/15 text-white/90">تيبازة</span>
+                      <span class="text-[8px] px-2 py-1 rounded-full bg-white/15 text-white/90">شنوة بلاج</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#14284B]/5 shadow-sm mb-2.5">
+                    <span class="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                      <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                    </span>
+                    <div class="leading-tight">
+                      <p class="text-[9px] font-bold" style="color: var(--secondary);">مجموعة موثقة</p>
+                      <p class="text-[8px] text-[#14284B]/50">تم التحقق من الهوية ✓</p>
+                    </div>
+                  </div>
+
+                  <div class="rounded-xl overflow-hidden relative h-16 bg-gradient-to-br from-[#14284B]/5 to-[#E85A3C]/5 border border-[#14284B]/5">
+                    <div class="absolute inset-0 opacity-40">
+                      <svg class="w-full h-full" viewBox="0 0 200 64" preserveAspectRatio="none">
+                        <path d="M0 40 Q40 20 80 35 T160 30 T200 45" stroke="#E85A3C" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+                        <circle cx="80" cy="35" r="4" fill="#E85A3C"/>
+                        <circle cx="140" cy="32" r="3" fill="#F59E0B"/>
+                      </svg>
+                    </div>
+                    <span class="absolute bottom-1.5 right-2 text-[7px] font-medium text-[#14284B]/60">خريطة ذكية · معالم قريبة</span>
+                  </div>
+
+                  <div class="flex justify-center gap-1.5 mt-3">
+                    <span class="w-1.5 h-1.5 rounded-full" style="background: var(--primary);"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#14284B]/15"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#14284B]/15"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="absolute -top-3 -left-4 sm:-left-6 glass-card px-2.5 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1.5 shadow-lg">
+                <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 star-gold"></i>
+                <span class="text-[10px] font-bold" style="color: var(--secondary);">4.9</span>
+                <span class="text-[9px] text-[#14284B]/50 hidden sm:inline">تقييم المختبرين</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEO PITCH -->
+    <section id="video" class="py-14 md:py-24 relative">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 md:mb-10 reveal">
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight" style="color: var(--secondary);">
+            اكتشف رؤية TIVO كاملة
+          </h2>
+          <p class="mt-3 text-sm sm:text-base text-[#14284B]/60 max-w-xl mx-auto">
+            شرح كامل لرؤية المشروع، المشكلة، الحل، ونموذج العمل — موجّه للجنة الحاضنة ووسم المشروع المبتكر.
+          </p>
+        </div>
+
+        <div class="reveal relative rounded-2xl overflow-hidden video-glow bg-[#14284B]" style="aspect-ratio: 16/9;">
+          <div id="video-container" class="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0d1a30]">
+            <div class="text-center text-white/70 p-6">
+              <i data-lucide="play-circle" class="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 opacity-60"></i>
+              <p class="font-en text-xs sm:text-sm tracking-widest uppercase opacity-60">Vision Pitch</p>
+              <p class="text-[11px] mt-1 opacity-40">جارٍ تحميل الفيديو…</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4 reveal">
+          <div class="glass-card p-3.5 sm:p-4 flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(232,90,60,0.1);">
+              <i data-lucide="trending-up" class="w-5 h-5" style="color: var(--primary);"></i>
+            </span>
+            <div>
+              <p class="text-base sm:text-lg font-bold" style="color: var(--secondary);">+60%</p>
+              <p class="text-[11px] sm:text-xs text-[#14284B]/60">صعوبة التخطيط لدى السياح</p>
+            </div>
+          </div>
+          <div class="glass-card p-3.5 sm:p-4 flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(245,158,11,0.12);">
+              <i data-lucide="layers" class="w-5 h-5" style="color: var(--gold);"></i>
+            </span>
+            <div>
+              <p class="text-base sm:text-lg font-bold" style="color: var(--secondary);">3 مراحل متكاملة</p>
+              <p class="text-[11px] sm:text-xs text-[#14284B]/60">إلهام، تخطيط، تنفيذ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APP TUTORIAL -->
+    <section id="app-tutorial" class="py-14 md:py-24 relative" style="background: linear-gradient(180deg, rgba(20,40,75,0.02) 0%, #FAFAFA 100%);">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 md:mb-10 reveal">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3" style="background: rgba(245,158,11,0.12); color: var(--gold);">
+            دليل الاستخدام
+          </span>
+          <h2 id="app-tutorial-title" class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight" style="color: var(--secondary);">
+            شرح التطبيق: التسجيل، الاستخدام، وأكثر
+          </h2>
+          <p class="mt-3 text-sm sm:text-base text-[#14284B]/60 max-w-xl mx-auto">
+            فيديو عملي يشرح خطوات التسجيل، إنشاء الحساب، استخدام رفيق TIVO، والانضمام للمجموعات الموثقة.
+          </p>
+        </div>
+
+        <div class="reveal relative rounded-2xl overflow-hidden bg-[#14284B]/5 border border-[#14284B]/5" style="aspect-ratio: 16/9;">
+          <div id="app-tutorial-container" class="absolute inset-0 w-full h-full flex items-center justify-center">
+            <div class="text-center p-6">
+              <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: rgba(245,158,11,0.12);">
+                <i data-lucide="video" class="w-7 h-7 sm:w-8 sm:h-8" style="color: var(--gold);"></i>
+              </div>
+              <p class="text-sm font-bold mb-1" style="color: var(--secondary);">فيديو الشرح قادم قريباً</p>
+              <p class="text-[11px] sm:text-xs text-[#14284B]/50 max-w-xs mx-auto">
+                سيتم عرض شرح تفصيلي للتسجيل والاستخدام هنا بمجرد رفع الفيديو.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 sm:mt-8 grid sm:grid-cols-3 gap-3 sm:gap-4 reveal">
+          <div class="glass-card p-3.5 sm:p-4 flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style="background: var(--primary);">1</span>
+            <p class="text-[13px] sm:text-sm font-medium" style="color: var(--secondary);">سجّل حسابك بسهولة</p>
+          </div>
+          <div class="glass-card p-3.5 sm:p-4 flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style="background: var(--secondary);">2</span>
+            <p class="text-[13px] sm:text-sm font-medium" style="color: var(--secondary);">اختر وجهتك مع رفيق TIVO</p>
+          </div>
+          <div class="glass-card p-3.5 sm:p-4 flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style="background: var(--gold);">3</span>
+            <p class="text-[13px] sm:text-sm font-medium" style="color: var(--secondary);">انضم لمجموعة موثقة</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BENTO / FEATURES -->
+    <section id="features" class="py-14 md:py-24 relative overflow-hidden">
+      <div class="absolute inset-0 -z-10">
+        <div class="absolute top-1/3 right-10 w-64 h-64 md:w-72 md:h-72 rounded-full opacity-[0.05]" style="background: var(--secondary); filter: blur(100px);"></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 md:mb-12 reveal">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3" style="background: rgba(232,90,60,0.1); color: var(--primary);">رحلة المستخدم</span>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight" style="color: var(--secondary);">
+            ثلاث ركائز.. تجربة سفر متكاملة
+          </h2>
+          <p class="mt-3 text-sm sm:text-base text-[#14284B]/60 max-w-lg mx-auto">
+            من لحظة الإلهام حتى التنفيذ — TIVO يرافقك في كل خطوة.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-5 md:gap-6">
+
+          <div class="reveal glass-card p-6 md:p-8 flex flex-col justify-between min-h-[260px] md:min-h-[280px] hover:shadow-xl hover:shadow-[#14284B]/5 transition-all duration-500">
+            <div>
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: rgba(232,90,60,0.1);">
+                <i data-lucide="compass" class="w-6 h-6" style="color: var(--primary);"></i>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold mb-3" style="color: var(--secondary);">الإلهام</h3>
+              <p class="text-[13px] sm:text-sm leading-relaxed text-[#14284B]/70">
+                خلاصة تفاعلية و TIVO Shorts تستعرضان الجواهر الجزائرية المخفية من صنّاع المحتوى.
+              </p>
+            </div>
+            <div class="mt-6 flex items-center gap-2 text-xs font-medium" style="color: var(--primary);">
+              <span>استكشف المحتوى</span>
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+          <div class="reveal rounded-2xl p-6 md:p-8 flex flex-col justify-between min-h-[260px] md:min-h-[280px] shadow-xl shadow-[#14284B]/20 hover:shadow-[#14284B]/30 transition-all duration-500 relative overflow-hidden"
+               style="background: var(--secondary);">
+            <div class="absolute top-0 left-0 w-40 h-40 rounded-full opacity-10 -translate-x-1/2 -translate-y-1/2" style="background: var(--gold); filter: blur(40px);"></div>
+            <div class="relative">
+              <div class="flex items-center gap-2 mb-5">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background: rgba(245,158,11,0.15);">
+                  <i data-lucide="sparkles" class="w-6 h-6" style="color: var(--gold);"></i>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" style="background: rgba(245,158,11,0.15); color: var(--gold);">AI</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold mb-3 text-white">رفيق TIVO</h3>
+              <p class="text-[13px] sm:text-sm leading-relaxed text-white/70">
+                مخطط سفر بالذكاء الاصطناعي يبني برامج مخصصة حسب ميزانيتك وتفضيلاتك.
+              </p>
+            </div>
+            <div class="relative mt-6 flex items-center gap-2 text-xs font-medium" style="color: var(--gold);">
+              <span>جرّب الرفيق الذكي</span>
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+          <div class="reveal glass-card p-6 md:p-8 flex flex-col justify-between min-h-[260px] md:min-h-[280px] hover:shadow-xl hover:shadow-[#14284B]/5 transition-all duration-500">
+            <div>
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: rgba(20,40,75,0.08);">
+                <i data-lucide="shield-check" class="w-6 h-6" style="color: var(--secondary);"></i>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold mb-3" style="color: var(--secondary);">المجموعات الموثقة والخريطة الذكية</h3>
+              <p class="text-[13px] sm:text-sm leading-relaxed text-[#14284B]/70">
+                مجموعات سفر موثقة بفحص أمني للهوية + إشعارات خريطة ذكية قريبة من المعالم.
+              </p>
+            </div>
+            <div class="mt-6 flex items-center gap-2 text-xs font-medium" style="color: var(--primary);">
+              <span>اكتشف الأمان</span>
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section id="roadmap" class="py-14 md:py-24" style="background: linear-gradient(180deg, #FAFAFA 0%, rgba(232,90,60,0.03) 100%);">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 md:mb-12 reveal">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3" style="background: rgba(20,40,75,0.06); color: var(--secondary);">خارطة الطريق</span>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight" style="color: var(--secondary);">
+            نموذج العمل والمراحل الاستراتيجية
+          </h2>
+          <p class="mt-3 text-sm sm:text-base text-[#14284B]/60 max-w-lg mx-auto">
+            مسار واضح يعكس نضج المشروع وقابلية التوسع.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-5">
+          <div class="reveal glass-card p-6 relative">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold" style="background: var(--primary);">1</span>
+              <div>
+                <p class="text-xs font-bold" style="color: var(--primary);">المرحلة الأولى</p>
+                <h3 class="text-lg font-bold" style="color: var(--secondary);">MVP (الحالي)</h3>
+              </div>
+            </div>
+            <ul class="space-y-2 text-sm text-[#14284B]/70">
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--primary);"></i> Community Feed</li>
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--primary);"></i> AI Trip Planner (رفيق TIVO)</li>
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--primary);"></i> Smart Map</li>
+            </ul>
+          </div>
+
+          <div class="reveal glass-card p-6 relative">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold" style="background: var(--secondary);">2</span>
+              <div>
+                <p class="text-xs font-bold" style="color: var(--secondary);">المرحلة الثانية</p>
+                <h3 class="text-lg font-bold" style="color: var(--secondary);">التوسع</h3>
+              </div>
+            </div>
+            <ul class="space-y-2 text-sm text-[#14284B]/70">
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--secondary);"></i> Verified Groups</li>
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--secondary);"></i> Content Creator Network</li>
+            </ul>
+          </div>
+
+          <div class="reveal glass-card p-6 relative">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold" style="background: var(--gold);">3</span>
+              <div>
+                <p class="text-xs font-bold" style="color: var(--gold);">المرحلة الثالثة</p>
+                <h3 class="text-lg font-bold" style="color: var(--secondary);">التحقيق التجاري</h3>
+              </div>
+            </div>
+            <ul class="space-y-2 text-sm text-[#14284B]/70">
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--gold);"></i> Direct hotel/agency bookings</li>
+              <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 mt-0.5 shrink-0" style="color: var(--gold);"></i> Local payment (CIB / Edahabia)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD BANNER -->
+    <section id="download" class="py-14 md:py-24">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal relative overflow-hidden rounded-3xl p-7 sm:p-10 md:p-12 text-center shadow-2xl"
+             style="background: linear-gradient(135deg, var(--secondary) 0%, #1e3a5f 100%);">
+          <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style="background: var(--primary); filter: blur(80px);"></div>
+          <div class="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10" style="background: var(--gold); filter: blur(80px);"></div>
+
+          <div class="relative">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-snug">
+              جاهز لتجربة TIVO؟
+            </h2>
+            <p class="mt-3 sm:mt-4 text-white/70 max-w-lg mx-auto text-[13px] sm:text-base">
+              حمّل النموذج الأولي (APK) واختبر رفيق السفر الذكي — نرحّب بملاحظات المقيّمين والمختبرين الأوائل.
+            </p>
+            <div class="mt-7 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+              <button onclick="handleApkDownload(event)"
+                      class="inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-4 rounded-xl text-white text-sm sm:text-base font-bold shadow-xl shadow-black/30 hover:brightness-110 active:scale-[0.98] transition-all duration-300"
+                      style="background: var(--primary); min-height: 52px;">
+                <i data-lucide="download" class="w-5 h-5"></i>
+                تحميل النموذج الأولي (APK)
+              </button>
+              <a href="mailto:tivo.app.dz@gmail.com"
+                 class="inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-4 rounded-xl text-sm sm:text-base font-bold border-2 border-white/30 text-white hover:bg-white/10 active:scale-[0.98] transition-all duration-300"
+                 style="min-height: 52px;">
+                <i data-lucide="mail" class="w-5 h-5"></i>
+                تواصل معنا
+              </a>
+            </div>
+            <p class="mt-6 text-white/40 text-xs font-en">TIVO — Travel, Reimagined</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-[#14284B]/5 py-10 md:py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <!-- Footer logo with fallback -->
+          <img src="logotivo.jpeg"
+               alt="TIVO Logo"
+               class="w-10 h-10 rounded-full object-cover shadow border border-[#14284B]/10"
+               width="40" height="40"
+               loading="lazy"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <span class="hidden w-9 h-9 rounded-full logo-gradient items-center justify-center shadow">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"><path d="M6 16.5C6 13 9 10 12 10C15 10 17 12 17 14.5C17 17 15 19 12 19C9.5 19 7.5 17.8 6 16.5Z" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <div>
+            <p class="font-en font-extrabold text-sm tracking-tight" style="color: var(--secondary);">TIVO</p>
+            <p class="font-en text-[9px] font-medium tracking-wider uppercase" style="color: var(--primary);">Travel, Reimagined</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-sm">
+          <a href="mailto:tivo.app.dz@gmail.com" class="inline-flex items-center gap-1.5 text-[#14284B]/60 hover:text-[#E85A3C] transition-colors break-all">
+            <i data-lucide="mail" class="w-4 h-4 shrink-0"></i>
+            tivo.app.dz@gmail.com
+          </a>
+          <div class="flex items-center gap-2.5">
+  <a href="https://www.instagram.com/tivo.app.dz/"
+     target="_blank"
+     rel="noopener noreferrer"
+     aria-label="انستغرام TIVO"
+     class="w-9 h-9 rounded-lg flex items-center justify-center bg-[#14284B]/5 hover:bg-[#E85A3C]/10 hover:text-[#E85A3C] transition-colors"
+     style="color: var(--secondary);">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         class="w-4 h-4"
+         aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+    </svg>
+  </a>
+</div>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-[#14284B]/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#14284B]/40">
+        <p>© 2026 TIVO. جميع الحقوق محفوظة.</p>
+        <p class="font-en">Startup Label Application · Algeria 🇩🇿</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE STICKY CTA -->
+  <div id="mobile-cta" class="sm:hidden fixed bottom-0 right-0 left-0 z-40 px-3 pt-2.5 pb-3 bg-white/90 backdrop-blur-lg border-t border-[#14284B]/5">
+    <button onclick="handleApkDownload(event)"
+            class="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-white text-sm font-bold shadow-lg shadow-[#E85A3C]/30 active:scale-[0.98] transition-all"
+            style="background: var(--primary); min-height: 50px;">
+      <i data-lucide="download" class="w-5 h-5"></i>
+      تحميل التطبيق التجريبي (APK)
+    </button>
+  </div>
+
+  <!-- DOWNLOAD TOAST -->
+  <div id="download-toast" class="fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[100] hidden-toast glass-card px-4 sm:px-5 py-3 flex items-center gap-3 shadow-2xl min-w-[280px] max-w-[92vw]">
+    <span class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background: rgba(232,90,60,0.1);">
+      <i data-lucide="download" class="w-4 h-4" style="color: var(--primary);"></i>
+    </span>
+    <div class="flex-1 text-sm min-w-0">
+      <p id="toast-title" class="font-bold" style="color: var(--secondary);">جارٍ بدء التحميل…</p>
+      <p id="toast-desc" class="text-xs text-[#14284B]/60 truncate">النموذج الأولي: tivo.apk</p>
+    </div>
+    <button onclick="hideToast()" class="text-[#14284B]/30 hover:text-[#14284B]/60 transition-colors shrink-0" aria-label="إغلاق الإشعار">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    lucide.createIcons();
+
+    // ===== Navbar shadow + mobile CTA visibility =====
+    const navbar = document.getElementById('navbar');
+    const mobileCta = document.getElementById('mobile-cta');
+    const footerEl = document.querySelector('footer');
+
+    function onScroll() {
+      const y = window.scrollY;
+      if (y > 10) navbar.classList.add('nav-scrolled');
+      else navbar.classList.remove('nav-scrolled');
+
+      if (mobileCta && footerEl) {
+        const footerTop = footerEl.getBoundingClientRect().top;
+        if (footerTop < window.innerHeight) {
+          mobileCta.classList.add('hidden-cta');
+        } else {
+          mobileCta.classList.remove('hidden-cta');
+        }
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // ===== Mobile menu =====
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function setMenu(open) {
+      if (open) {
+        mobileMenu.classList.add('open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'true');
+        if (mobileCta) mobileCta.classList.add('hidden-cta');
+        const icon = mobileMenuBtn.querySelector('i');
+        icon.setAttribute('data-lucide', 'x');
+        lucide.createIcons();
+      } else {
+        mobileMenu.classList.remove('open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        if (mobileCta) mobileCta.classList.remove('hidden-cta');
+        const icon = mobileMenuBtn.querySelector('i');
+        icon.setAttribute('data-lucide', 'menu');
+        lucide.createIcons();
+      }
+    }
+
+    mobileMenuBtn.addEventListener('click', () => {
+      setMenu(!mobileMenu.classList.contains('open'));
+    });
+
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => setMenu(false));
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!mobileMenu.classList.contains('open')) return;
+      if (mobileMenuBtn.contains(e.target) || mobileMenu.contains(e.target)) return;
+      setMenu(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setMenu(false);
+    });
+
+    // ===== Scroll reveal =====
+    const revealElements = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      revealElements.forEach(el => revealObserver.observe(el));
+    } else {
+      revealElements.forEach(el => el.classList.add('visible'));
+    }
+
+    // ===== Scroll-spy =====
+    const sections = ['about', 'features', 'video', 'app-tutorial', 'roadmap'];
+    const navLinks = document.querySelectorAll('.nav-link');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+          const sectionTop = section.offsetTop - 120;
+          if (window.scrollY >= sectionTop) current = id;
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href').replace('#', '');
+        if (href === current) link.classList.add('active');
+      });
+    }, { passive: true });
+
+    // ===== APK download =====
+    function handleApkDownload(event) {
+      if (event) event.preventDefault();
+
+      const toast = document.getElementById('download-toast');
+      const toastTitle = document.getElementById('toast-title');
+      const toastDesc = document.getElementById('toast-desc');
+
+      toastTitle.textContent = 'جارٍ بدء التحميل…';
+      toastDesc.textContent = `النموذج الأولي: ${CONFIG.apkFileName}`;
+      toast.classList.remove('hidden-toast');
+      lucide.createIcons();
+
+      const link = document.createElement('a');
+      link.href = CONFIG.apkDownloadUrl;
+      link.download = CONFIG.apkFileName;
+      link.rel = 'noopener';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => {
+        toastTitle.textContent = 'تم بدء التحميل ✓';
+        toastDesc.textContent = 'إذا لم يبدأ تلقائياً، تحقق من إعدادات المتصفح.';
+        lucide.createIcons();
+      }, 2000);
+
+      setTimeout(() => toast.classList.add('hidden-toast'), 7000);
+    }
+
+    function hideToast() {
+      document.getElementById('download-toast').classList.add('hidden-toast');
+    }
+
+    // ===== Inject YouTube (vision pitch) =====
+    (function loadYouTubeVideo() {
+      const videoContainer = document.getElementById('video-container');
+      if (!videoContainer) return;
+      const videoId = CONFIG.youtubeVideoId;
+      if (videoId && videoId !== 'YOUR_YOUTUBE_ID') {
+        videoContainer.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.className = 'absolute inset-0 w-full h-full';
+        iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+        iframe.title = 'TIVO Vision Pitch';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('loading', 'lazy');
+        iframe.style.border = '0';
+        videoContainer.appendChild(iframe);
+      } else {
+        videoContainer.classList.add('cursor-pointer');
+        videoContainer.addEventListener('click', () => {
+          window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+        });
+        const placeholderText = videoContainer.querySelector('.text-xs');
+        if (placeholderText) placeholderText.textContent = 'اضغط لمشاهدة العرض (رابط تجريبي)';
+      }
+    })();
+
+    // ===== Inject app tutorial video if ID provided =====
+    (function loadAppTutorialVideo() {
+      const container = document.getElementById('app-tutorial-container');
+      const titleEl = document.getElementById('app-tutorial-title');
+      if (!container) return;
+
+      if (CONFIG.appTutorialTitle && titleEl) {
+        titleEl.textContent = CONFIG.appTutorialTitle;
+      }
+
+      const videoId = CONFIG.appTutorialVideoId;
+      if (videoId && videoId.trim() !== '') {
+        container.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.className = 'absolute inset-0 w-full h-full';
+        iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+        iframe.title = CONFIG.appTutorialTitle || 'TIVO App Tutorial';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('loading', 'lazy');
+        iframe.style.border = '0';
+        container.appendChild(iframe);
+      }
+    })();
+
+    // ===== Smooth anchor scroll with offset =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#' || targetId === '') return;
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          const offset = 72;
+          const targetPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
