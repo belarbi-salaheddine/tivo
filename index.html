@@ -161,6 +161,19 @@
 
     /* Logo image fallback helper */
     .logo-img { object-fit: cover; }
+
+    /* ===== Vertical video container (for YouTube Shorts) ===== */
+    .short-video-wrapper {
+      aspect-ratio: 9 / 16;
+      max-width: 360px;
+      margin-inline: auto;
+    }
+    @media (max-width: 640px) {
+      .short-video-wrapper {
+        max-width: 100%;
+        aspect-ratio: 9 / 16;
+      }
+    }
   </style>
 </head>
 <body class="antialiased">
@@ -170,8 +183,8 @@
     const CONFIG = {
       apkDownloadUrl: "./tivo.apk",
       apkFileName: "tivo.apk",
-      youtubeVideoId: "lOnKVVjf0uw",
-      appTutorialVideoId: "",
+      youtubeVideoId: "lOnKVVjf0uw",        // فيديو الرؤية (Pitch)
+      appTutorialVideoId: "K76TJKHAjpM",    // فيديو شرح التطبيق (Shorts)
       appTutorialTitle: "شرح التطبيق: التسجيل، الاستخدام، وأكثر",
     };
     window.TIVO_CONFIG = CONFIG;
@@ -431,7 +444,7 @@
       </div>
     </section>
 
-    <!-- APP TUTORIAL -->
+    <!-- APP TUTORIAL (YouTube Shorts — vertical 9:16) -->
     <section id="app-tutorial" class="py-14 md:py-24 relative" style="background: linear-gradient(180deg, rgba(20,40,75,0.02) 0%, #FAFAFA 100%);">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-8 md:mb-10 reveal">
@@ -446,15 +459,16 @@
           </p>
         </div>
 
-        <div class="reveal relative rounded-2xl overflow-hidden bg-[#14284B]/5 border border-[#14284B]/5" style="aspect-ratio: 16/9;">
+        <!-- Vertical container for Shorts -->
+        <div class="reveal short-video-wrapper relative rounded-2xl overflow-hidden bg-[#14284B]/5 border border-[#14284B]/5 shadow-lg">
           <div id="app-tutorial-container" class="absolute inset-0 w-full h-full flex items-center justify-center">
             <div class="text-center p-6">
               <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: rgba(245,158,11,0.12);">
                 <i data-lucide="video" class="w-7 h-7 sm:w-8 sm:h-8" style="color: var(--gold);"></i>
               </div>
-              <p class="text-sm font-bold mb-1" style="color: var(--secondary);">فيديو الشرح قادم قريباً</p>
+              <p class="text-sm font-bold mb-1" style="color: var(--secondary);">جارٍ تحميل فيديو الشرح…</p>
               <p class="text-[11px] sm:text-xs text-[#14284B]/50 max-w-xs mx-auto">
-                سيتم عرض شرح تفصيلي للتسجيل والاستخدام هنا بمجرد رفع الفيديو.
+                سيظهر الفيديو هنا تلقائياً.
               </p>
             </div>
           </div>
@@ -675,27 +689,27 @@
             tivo.app.dz@gmail.com
           </a>
           <div class="flex items-center gap-2.5">
-  <a href="https://www.instagram.com/tivo.app.dz/"
-     target="_blank"
-     rel="noopener noreferrer"
-     aria-label="انستغرام TIVO"
-     class="w-9 h-9 rounded-lg flex items-center justify-center bg-[#14284B]/5 hover:bg-[#E85A3C]/10 hover:text-[#E85A3C] transition-colors"
-     style="color: var(--secondary);">
-    <svg xmlns="http://www.w3.org/2000/svg"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2"
-         stroke-linecap="round"
-         stroke-linejoin="round"
-         class="w-4 h-4"
-         aria-hidden="true">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-    </svg>
-  </a>
-</div>
+            <a href="https://www.instagram.com/tivo.app.dz/"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="انستغرام TIVO"
+               class="w-9 h-9 rounded-lg flex items-center justify-center bg-[#14284B]/5 hover:bg-[#E85A3C]/10 hover:text-[#E85A3C] transition-colors"
+               style="color: var(--secondary);">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   viewBox="0 0 24 24"
+                   fill="none"
+                   stroke="currentColor"
+                   stroke-width="2"
+                   stroke-linecap="round"
+                   stroke-linejoin="round"
+                   class="w-4 h-4"
+                   aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -892,7 +906,7 @@
       }
     })();
 
-    // ===== Inject app tutorial video if ID provided =====
+    // ===== Inject app tutorial video (Shorts) =====
     (function loadAppTutorialVideo() {
       const container = document.getElementById('app-tutorial-container');
       const titleEl = document.getElementById('app-tutorial-title');
